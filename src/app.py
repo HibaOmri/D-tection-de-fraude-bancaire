@@ -9,13 +9,12 @@ import joblib
 import webbrowser
 from threading import Timer
 
-# Permet l'exécution directe via python src/app.py
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.preprocessing import preprocess_data, haversine_distance
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
-app.secret_key = 'bankdash_fraud_detection_secret_key'
+app.secret_key = 'bcp_bp_fraud_detection_secret_key'
 
 MODELS_DIR = 'models'
 DATA_TEST_PATH = 'data/fraudTest.csv'
@@ -38,7 +37,6 @@ def log_audit_event(trans_num, action, action_label, amt_mad=0.0, category="", t
             writer.writerow(headers)
         writer.writerow([timestamp, trans_num, analyst, action, action_label, float(amt_mad), category, trans_date])
 
-# Variable globale pour pré-charger un échantillon rapide de test
 cached_test_df = None
 
 def load_assets():
@@ -119,7 +117,6 @@ def get_stats():
             hourly = df_copy.groupby('hour')['is_fraud'].mean() * 100
             hourly_data = [round(v, 2) for v in hourly.reindex(range(24), fill_value=0).values]
             
-            # Formattage de la typologie des fraudes bloquées
             frauds_df = df_copy[df_copy['is_fraud'] == 1]
             if len(frauds_df) > 0 and 'category' in frauds_df.columns:
                 cat_counts = frauds_df['category'].value_counts()
@@ -255,7 +252,6 @@ def stream_transaction():
             
             X, _ = preprocess_data(raw_df, is_train=False, category_encoder=category_encoder, use_advanced_features=True)
             
-            # Alignement garanti des 32 colonnes attendues par XGBoost
             if hasattr(model, 'feature_names_in_'):
                 X = X.reindex(columns=model.feature_names_in_, fill_value=0)
                 
@@ -327,7 +323,6 @@ def predict():
         
         X = preprocess_data(raw_df, is_train=False, category_encoder=category_encoder, use_advanced_features=True)
         
-        # Alignement des 32 colonnes attendues par XGBoost
         if hasattr(model, 'feature_names_in_'):
             X = X.reindex(columns=model.feature_names_in_, fill_value=0)
             
@@ -368,16 +363,12 @@ def predict():
 
 @app.route('/api/explain_transaction', methods=['POST'])
 def explain_transaction():
-    """
-    Génère l'explicabilité SHAP / Facteurs contributifs pour une alerte donnée.
-    """
     data = request.json or {}
     amt_mad = float(data.get('amt_mad', 3500.0))
     category = str(data.get('category', 'shopping_net'))
     trans_time = str(data.get('trans_date_trans_time', '2026-07-21 03:14:00'))
     risk_score = float(data.get('risk_score', 92.0))
     
-    # Extraire l'heure
     try:
         hour = int(trans_time.split(' ')[1].split(':')[0])
     except Exception:
@@ -425,10 +416,6 @@ def explain_transaction():
 
 @app.route('/api/alerts/resolve', methods=['POST'])
 def resolve_alert():
-    """
-    Clôture un dossier d'alerte avec une action métier (Faux Positif, OTP, Bloquer)
-    et consigne l'opération dans journal_audit.csv.
-    """
     data = request.json or {}
     trans_num = data.get('trans_num', 'TRX-UNKNOWN')
     action = data.get('action', 'block')
@@ -472,9 +459,6 @@ def resolve_alert():
 
 @app.route('/api/audit/logs', methods=['GET'])
 def get_audit_logs():
-    """
-    Renvoie la liste des événements d'audit enregistrés dans journal_audit.csv.
-    """
     logs = []
     if os.path.exists(AUDIT_LOG_PATH):
         try:
@@ -487,15 +471,11 @@ def get_audit_logs():
     return jsonify({
         "status": "success",
         "count": len(logs),
-        "logs": logs[::-1]  # Ordre antéchronologique (plus récent en haut)
+        "logs": logs[::-1]
     })
 
 @app.route('/api/alerts/undo', methods=['POST'])
 def undo_alert_action():
-    """
-    Annule la résolution d'une alerte (Corbeille d'annulation / Droit à l'erreur),
-    consigne l'ANNULATION dans journal_audit.csv et renvoie l'alerte pour ré-injection.
-    """
     data = request.json or {}
     trans_num = data.get('trans_num', '')
     amt_mad = float(data.get('amt_mad', 0.0))
@@ -531,14 +511,10 @@ def undo_alert_action():
         "restored_alert": restored_alert
     })
 
-
 def open_browser():
     webbrowser.open_new("http://127.0.0.1:5000/")
 
 if __name__ == '__main__':
-    print("Démarrage du serveur API Flask Bankdash...")
-    print("Accès direct réservé à l'Analyst Risque : http://127.0.0.1:5000/")
-    
     if os.environ.get('WERKZEUG_RUN_MAIN') != 'true':
         Timer(1.5, open_browser).start()
         

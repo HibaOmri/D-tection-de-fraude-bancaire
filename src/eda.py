@@ -5,32 +5,19 @@ import seaborn as sns
 import os
 
 def run_eda(train_path='data/fraudTrain.csv', test_path='data/fraudTest.csv', output_dir='reports/figures'):
-    """
-    Exécute l'analyse exploratoire des données (EDA) pour la détection de fraude.
-    Sauvegarde des graphiques explicatifs dans reports/figures.
-    """
     os.makedirs(output_dir, exist_ok=True)
-    print("=== CHARGEMENT DES DONNÉES ===")
     df_train = pd.read_csv(train_path)
     df_test = pd.read_csv(test_path)
     
-    print(f"Train Shape: {df_train.shape}")
-    print(f"Test Shape: {df_test.shape}")
-    
-    # 1. Équilibre des classes
     fraud_train_cnt = df_train['is_fraud'].sum()
     fraud_test_cnt = df_test['is_fraud'].sum()
     fraud_train_pct = df_train['is_fraud'].mean() * 100
     fraud_test_pct = df_test['is_fraud'].mean() * 100
     
-    print(f"\n[Fraude Train] Total: {fraud_train_cnt} ({fraud_train_pct:.3f}%)")
-    print(f"[Fraude Test]  Total: {fraud_test_cnt} ({fraud_test_pct:.3f}%)")
-    
-    # Visualisation équilibre des classes
     fig, ax = plt.subplots(1, 2, figsize=(12, 4))
     sns.countplot(x='is_fraud', data=df_train, ax=ax[0], palette=['#2b5c8f', '#d9534f'])
     ax[0].set_title(f'Train Target Balance (Fraud: {fraud_train_pct:.2f}%)')
-    ax[0].set_yscale('log') # Échelle logarithmique pour voir la barre de fraude
+    ax[0].set_yscale('log')
     
     sns.countplot(x='is_fraud', data=df_test, ax=ax[1], palette=['#2b5c8f', '#d9534f'])
     ax[1].set_title(f'Test Target Balance (Fraud: {fraud_test_pct:.2f}%)')
@@ -39,16 +26,11 @@ def run_eda(train_path='data/fraudTrain.csv', test_path='data/fraudTest.csv', ou
     plt.savefig(os.path.join(output_dir, 'class_balance.png'), dpi=300)
     plt.close()
     
-    # 2. Distribution du Montant des Transactions (`amt` converti en MAD - 1 USD = 10 DH)
     USD_TO_MAD = 10.0
     df_train['amt_mad'] = df_train['amt'] * USD_TO_MAD
     
-    print("\n=== ANALYSE DU MONTANT (en Dirhams Marocains - MAD) ===")
     amt_legit = df_train[df_train['is_fraud'] == 0]['amt_mad']
     amt_fraud = df_train[df_train['is_fraud'] == 1]['amt_mad']
-    
-    print(f"Légitime - Moyenne: {amt_legit.mean():.2f} DH, Médiane: {amt_legit.median():.2f} DH, Max: {amt_legit.max():.2f} DH")
-    print(f"Fraude   - Moyenne: {amt_fraud.mean():.2f} DH, Médiane: {amt_fraud.median():.2f} DH, Max: {amt_fraud.max():.2f} DH")
     
     fig, ax = plt.subplots(figsize=(10, 5))
     sns.kdeplot(np.log1p(amt_legit), label='Légitime', color='#2b5c8f', fill=True, ax=ax)
@@ -60,7 +42,6 @@ def run_eda(train_path='data/fraudTrain.csv', test_path='data/fraudTest.csv', ou
     plt.savefig(os.path.join(output_dir, 'amt_distribution.png'), dpi=300)
     plt.close()
     
-    # 3. Répartition des fraudes par Catégorie de commerçant
     cat_summary = df_train.groupby('category')['is_fraud'].agg(['count', 'sum', 'mean']).reset_index()
     cat_summary['mean_pct'] = cat_summary['mean'] * 100
     cat_summary = cat_summary.sort_values(by='mean_pct', ascending=False)
@@ -73,7 +54,6 @@ def run_eda(train_path='data/fraudTrain.csv', test_path='data/fraudTest.csv', ou
     plt.savefig(os.path.join(output_dir, 'fraud_by_category.png'), dpi=300)
     plt.close()
     
-    # 4. Taux de Fraude selon l'Heure de la Journée
     df_train['trans_date_trans_time'] = pd.to_datetime(df_train['trans_date_trans_time'])
     df_train['hour'] = df_train['trans_date_trans_time'].dt.hour
     
@@ -90,7 +70,6 @@ def run_eda(train_path='data/fraudTrain.csv', test_path='data/fraudTest.csv', ou
     plt.savefig(os.path.join(output_dir, 'fraud_by_hour.png'), dpi=300)
     plt.close()
     
-    print(f"\nEDA Terminé ! Graphiques générés dans le dossier '{output_dir}'.")
     return cat_summary
 
 if __name__ == '__main__':

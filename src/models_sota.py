@@ -16,12 +16,6 @@ from sklearn.ensemble import RandomForestClassifier
 from src.preprocessing import preprocess_data
 
 def evaluate_with_cost_matrix(model, X_val, y_val, amt_mad_val, model_name="Modèle", cost_fp=150.0):
-    """
-    Évalue un modèle sur le jeu de validation avec métriques standard (PR-AUC, ROC-AUC)
-    et effectue une recherche du seuil optimal qui MAXIMISE LES ÉCONOMIES FINANCIÈRES EN MAD.
-    - FN_cost = Somme des montants réels en MAD des fraudes non détectées.
-    - FP_cost = Nombre de fausses alertes * 150 DH (coût administratif / friction client).
-    """
     start_time = time.time()
     y_pred_proba = model.predict_proba(X_val)[:, 1]
     inference_time = time.time() - start_time
@@ -31,14 +25,12 @@ def evaluate_with_cost_matrix(model, X_val, y_val, amt_mad_val, model_name="Mod�
     
     total_fraud_loss_baseline = amt_mad_val[y_val == 1].sum()
     
-    # Recherche du Seuil Optimal Financier (minimisant la perte totale en DH)
     best_savings = -float('inf')
     best_threshold = 0.5
     best_prec, best_rec, best_f1 = 0, 0, 0
     best_cm = None
     best_fn_cost, best_fp_cost, best_loss = 0, 0, 0
     
-    # Tester 100 seuils entre 0.01 et 0.99
     threshold_grid = np.linspace(0.01, 0.99, 99)
     for th in threshold_grid:
         y_pred = (y_pred_proba >= th).astype(int)
@@ -66,15 +58,14 @@ def evaluate_with_cost_matrix(model, X_val, y_val, amt_mad_val, model_name="Mod�
     savings_pct = (best_savings / (total_fraud_loss_baseline + 1e-10)) * 100
     fp_count_best = int(best_fp_cost / cost_fp)
     
-    print(f"\n==================== {model_name} (Ajusté & Optimisé) ====================")
+    print(f"\n==================== {model_name} ====================")
     print(f"ROC-AUC                    : {roc_auc:.4f}")
-    print(f"PR-AUC (Métrique Métier)    : {pr_auc:.4f}")
+    print(f"PR-AUC                     : {pr_auc:.4f}")
     print(f"Seuil Optimal Financier     : {best_threshold:.4f}")
     print(f"Précision @ Seuil Optimal   : {best_prec:.4f}")
     print(f"Rappel (Recall)             : {best_rec:.4f}")
     print(f"F1-Score                    : {best_f1:.4f}")
     print(f"Matrice de Confusion :\n{best_cm}")
-    print(f"\n--- Analyse Financière Bancaire (en MAD) ---")
     print(f"Perte Fraude Sans Modèle   : {total_fraud_loss_baseline:,.2f} DH")
     print(f"Coût des Fraudes Manquées  : {best_fn_cost:,.2f} DH")
     print(f"Coût des Fausses Alertes   : {best_fp_cost:,.2f} DH ({fp_count_best} alertes * {cost_fp} DH)")
@@ -99,8 +90,6 @@ def evaluate_with_cost_matrix(model, X_val, y_val, amt_mad_val, model_name="Mod�
 
 def train_and_compare_sota_models(train_path='data/fraudTrain.csv', models_dir='models', val_size=0.2):
     os.makedirs(models_dir, exist_ok=True)
-    
-    print("=== CHARGEMENT ET RÉGLAGE DU SPLIT TRAIN (80% TRAIN / 20% VALIDATION) ===")
     df_train_full = pd.read_csv(train_path)
     
     if 'amt_mad' not in df_train_full.columns:
@@ -116,13 +105,8 @@ def train_and_compare_sota_models(train_path='data/fraudTrain.csv', models_dir='
     )
     
     ratio_neg_pos = (y_train == 0).sum() / (y_train == 1).sum()
-    print(f"Taille Train: {X_train.shape[0]} lignes | Taille Val: {X_val.shape[0]} lignes")
-    print(f"Ratio de déséquilibre brut (0 / 1): {ratio_neg_pos:.2f}")
-    
     results = []
     
-    # 1. Random Forest (Ajusté)
-    print("\n[1/4] Ajustement et Entraînement de Random Forest...")
     rf = RandomForestClassifier(
         n_estimators=120, max_depth=16, class_weight='balanced',
         max_features='sqrt', n_jobs=-1, random_state=42
@@ -132,8 +116,6 @@ def train_and_compare_sota_models(train_path='data/fraudTrain.csv', models_dir='
     results.append(res_rf)
     joblib.dump(rf, os.path.join(models_dir, 'rf_advanced_week2.joblib'))
     
-    # 2. XGBoost (Ajusté)
-    print("\n[2/4] Ajustement et Entraînement de XGBoost...")
     xgb_model = xgb.XGBClassifier(
         n_estimators=200, max_depth=6, learning_rate=0.08,
         subsample=0.8, colsample_bytree=0.8, scale_pos_weight=ratio_neg_pos,
@@ -144,9 +126,6 @@ def train_and_compare_sota_models(train_path='data/fraudTrain.csv', models_dir='
     results.append(res_xgb)
     joblib.dump(xgb_model, os.path.join(models_dir, 'xgboost_sota.joblib'))
     
-    # 3. LightGBM (Correction et Ajustement des Poids)
-    print("\n[3/4] Ajustement et Entraînement de LightGBM (Poids modéré)...")
-    # Poids ajusté à 15.0 pour éviter la sur-sensibilité et les fausses alertes de LightGBM
     lgb_model = lgb.LGBMClassifier(
         n_estimators=200, max_depth=7, num_leaves=31, learning_rate=0.08,
         scale_pos_weight=15.0, subsample=0.8, colsample_bytree=0.8,
@@ -157,8 +136,6 @@ def train_and_compare_sota_models(train_path='data/fraudTrain.csv', models_dir='
     results.append(res_lgb)
     joblib.dump(lgb_model, os.path.join(models_dir, 'lightgbm_sota.joblib'))
     
-    # 4. CatBoost (Ajusté)
-    print("\n[4/4] Ajustement et Entraînement de CatBoost...")
     cat_model = CatBoostClassifier(
         iterations=200, depth=6, learning_rate=0.08,
         scale_pos_weight=ratio_neg_pos, verbose=0, random_seed=42
@@ -168,7 +145,6 @@ def train_and_compare_sota_models(train_path='data/fraudTrain.csv', models_dir='
     results.append(res_cat)
     joblib.dump(cat_model, os.path.join(models_dir, 'catboost_sota.joblib'))
     
-    # Tableau récapitulatif
     df_res = pd.DataFrame([{
         'Modèle': r['model_name'],
         'PR-AUC': r['pr_auc'],
@@ -179,13 +155,12 @@ def train_and_compare_sota_models(train_path='data/fraudTrain.csv', models_dir='
         'Gains (%)': r['savings_pct']
     } for r in results])
     
-    print("\n==================== TABLEAU COMPARATIF FINAL DES MODÈLES SOTA AJUSTÉS ====================")
+    print("\n==================== TABLEAU COMPARATIF FINAL ====================")
     print(df_res.to_string(index=False))
-    print("===========================================================================================\n")
+    print("==================================================================\n")
     
     best_model_info = max(results, key=lambda x: x['savings_mad'])
     joblib.dump(best_model_info['model_obj'], os.path.join(models_dir, 'best_model_sota.joblib'))
-    print(f"Meilleur modèle sélectionné ({best_model_info['model_name']}) sauvegardé sous 'models/best_model_sota.joblib'.")
     
     return results
 
