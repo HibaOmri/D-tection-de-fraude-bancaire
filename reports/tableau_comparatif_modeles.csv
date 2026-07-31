@@ -1,0 +1,5 @@
+Modèle,PR-AUC (Métrique Métier),ROC-AUC,Rappel (Recall %),F1-Score,Seuil Optimal,Économies (MAD / DH),Pertes Évitées (%)
+Random Forest,0.9039,0.9982,85.34%,0.8262,0.72,828174.80 DH,79.54%
+XGBoost,0.9474,0.9992,91.74%,0.8529,0.91,902372.90 DH,86.67%
+LightGBM,0.5978,0.9768,88.14%,0.7778,0.75,822597.50 DH,79.01%
+CatBoost,0.9331,0.9991,91.61%,0.8336,0.93,878745.60 DH,84.40%

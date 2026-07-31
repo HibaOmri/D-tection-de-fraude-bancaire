@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banque Populaire - RiskGuard | Détection de Fraude Bancaire</title>
+    <!-- Google Fonts Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- SIDEBAR NAVIGATION (BANQUE POPULAIRE RISKGUARD) -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon-box">
+                    <svg width="34" height="34" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 50 10 C 27.9 10 10 27.9 10 50 C 10 72.1 27.9 90 50 90 C 72.1 90 90 72.1 90 50 C 90 27.9 72.1 10 50 10 Z" fill="#EB680B"/>
+                        <path d="M 44 26 C 54 26 66 32 70 42 C 74 52 68 64 60 72 C 53 79 40 83 30 81 C 28 76 32 71 38 69 C 46 67 56 59 54 49 C 52 41 43 38 36 40 C 30 42 26 47 24 53 C 22 48 23 41 28 35 C 33 29 38 26 44 26 Z" fill="#FFFFFF"/>
+                        <circle cx="60" cy="46" r="5" fill="#FFFFFF"/>
+                    </svg>
+                </div>
+                <div class="logo-text-box">
+                    <span class="logo-text">Banque Populaire</span>
+                    <span class="logo-subtitle">RiskGuard</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active" onclick="switchTab('dashboard')">
+                    <span class="nav-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                    </span>
+                    <span class="nav-label">Dashboard</span>
+                </a>
+                <a href="#tester" class="nav-item" onclick="switchTab('tester')">
+                    <span class="nav-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                    </span>
+                    <span class="nav-label">Transactions & Test</span>
+                </a>
+                <a href="#analytics" class="nav-item" onclick="switchTab('analytics')">
+                    <span class="nav-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    </span>
+                    <span class="nav-label">Analytiques Risque</span>
+                </a>
+                <a href="#history" class="nav-item" onclick="switchTab('history')">
+                    <span class="nav-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path></svg>
+                    </span>
+                    <span class="nav-label">Historique & Audit</span>
+                </a>
+            </nav>
+
+            <!-- CURSEUR DE SENSIBILITÉ / SEUIL DE BLOCAGE (MATRICE DE COÛT) -->
+            <div class="sidebar-threshold-box">
+                <div class="threshold-header">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fe5c73" stroke-width="2.5"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <span>Curseur de Sensibilité</span>
+                </div>
+                <div class="threshold-val-row">
+                    <span class="threshold-title">Seuil de Blocage :</span>
+                    <span class="threshold-badge" id="thresholdValBadge">85%</span>
+                </div>
+                <input type="range" id="sensitivitySlider" min="50" max="99" value="85" class="threshold-range-input" oninput="onThresholdChange(this.value)">
+                <div class="threshold-labels">
+                    <span>50% (Très Sensible)</span>
+                    <span>99% (Strict)</span>
+                </div>
+                <p class="threshold-desc" id="thresholdDescText">
+                    <strong>Matrice de Coût :</strong> 85% — Équilibre optimal pour limiter les faux positifs.
+                </p>
+            </div>
+        </aside>
+
+        <!-- MAIN WRAPPER -->
+        <div class="main-wrapper">
+            <!-- TOP BAR / HEADER -->
+            <header class="topbar">
+                <div class="topbar-title">
+                    <h1 id="pageTitle">Overview</h1>
+                </div>
+                <div class="topbar-right">
+                    <div class="search-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#718EBF" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" placeholder="Rechercher une transaction..." id="searchInput">
+                    </div>
+                    <div class="icon-badge">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#718EBF" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    </div>
+                    <div class="user-avatar">
+                        <span class="avatar-initials">HB</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- MAIN CONTENT AREA -->
+            <main class="content-area">
+                <!-- TAB 1 : DASHBOARD OVERVIEW -->
+                <div id="tab-dashboard" class="tab-content active">
+                    <!-- LIGNE 1 : LES 3 CARTES KPIS ALIGNÉES HORIZONTALEMENT EN HAUT -->
+                    <div class="kpi-top-row">
+                        <div class="bank-card primary-card">
+                            <div class="card-top">
+                                <div>
+                                    <span class="card-label">Économies Réalisées</span>
+                                    <div class="card-val" id="kpi-savings">882,536 MAD</div>
+                                </div>
+                                <div class="chip-icon"></div>
+                            </div>
+                            <div class="card-bottom">
+                                <div class="card-holder">
+                                    <span>Modèle Actif</span>
+                                    <strong>XGBoost SOTA</strong>
+                                </div>
+                                <div class="card-expires">
+                                    <span>PR-AUC</span>
+                                    <strong>94.74%</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stat-box">
+                            <div class="stat-icon icon-blue">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Transactions Analysées</span>
+                                <strong class="stat-num" id="kpi-total">555,719</strong>
+                            </div>
+                        </div>
+
+                        <div class="stat-box">
+                            <div class="stat-icon icon-red">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Précision des Alertes (Precision)</span>
+                                <strong class="stat-num red-text" id="kpi-pct">95.2%</strong>
+                                <span id="kpi-subtext" style="font-size: 0.72rem; color: #718ebf; display: block; margin-top: 2px;">95 / 100 alertes avérées</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LIGNE 2 : SURVEILLANCE EN TEMPS RÉEL (50% RADAR / 50% FILE D'ATTENTE) -->
+                    <div class="realtime-section margin-top-30">
+                        <div class="row-header">
+                            <h2>Surveillance en Temps Réel & Case Management</h2>
+                            <button class="btn btn-indigo" id="liveStreamBtn" onclick="toggleLiveStream()">Activer le Flux Temps Réel</button>
+                        </div>
+
+                        <div class="case-management-grid-50-50">
+                            <!-- ZONE 1 : LE RADAR (FLUX LÉGITIME EN DIRECT - 50% DE LARGEUR) -->
+                            <div class="panel-card radar-panel">
+                                <div class="panel-title-bar">
+                                    <span class="zone-badge badge-green">Zone 1</span>
+                                    <h3>Le Radar (Flux en direct)</h3>
+                                </div>
+                                <p class="panel-subtitle">Transactions légitimes filtrées défilant en continu (3-4 dernières visibles)</p>
+                                <div class="trans-list radar-stream" id="recentTransList">
+                                    <!-- Transactions légitimes défilent ici en vert -->
+                                </div>
+                            </div>
+
+                            <!-- ZONE 2 : LA FILE D'ATTENTE DES FRAUDES (50% DE LARGEUR) -->
+                            <div class="panel-card queue-panel">
+                                <div class="panel-title-bar">
+                                    <span class="zone-badge badge-red">Zone 2</span>
+                                    <h3>File d'Attente des Alertes</h3>
+                                    <span class="alert-count-pill" id="alertQueueBadge">1 alerte</span>
+                                    <button class="btn-demo-fraud" onclick="injectDemoFraud()" title="Simuler l'arrivée d'une alerte fraude">+ Simuler Fraude</button>
+                                </div>
+                                <p class="panel-subtitle">Transactions suspectes épinglées en attente d'un analyste</p>
+                                <div class="trans-list alerts-queue" id="alertsQueueList">
+                                    <div class="empty-queue-msg" id="emptyQueueMsg">
+                                        Aucune alerte en attente. Le système écoute le réseau.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ZONE 3 : PANNEAU D'INSPECTION & EXPLICABILITÉ SHAP -->
+                        <div class="panel-card shap-inspection-card hidden" id="shapInspectionCard">
+                            <div class="panel-title-bar">
+                                <span class="zone-badge badge-blue">Zone 3</span>
+                                <h3>Aide a la Decision & Explicabilite SHAP</h3>
+                                <button class="btn-close-panel" onclick="closeShapPanel()">&times;</button>
+                            </div>
+                            
+                            <div class="shap-content-grid">
+                                <div class="shap-summary-box">
+                                    <h4 id="shapCaseTitle">Dossier alerte : TRX-0000</h4>
+                                    <p class="shap-text-explanation" id="shapExplanationText">
+                                        Chargement de l'analyse explicative du modèle XGBoost...
+                                    </p>
+                                    <div class="shap-factors-list" id="shapFactorsList">
+                                        <!-- Rempli dynamiquement -->
+                                    </div>
+                                </div>
+
+                                <div class="business-actions-box">
+                                    <h4>Actions Metiers de Cloture</h4>
+                                    <div class="action-buttons-group">
+                                        <button class="btn btn-action-success" onclick="resolveCurrentAlert('false_positive')">
+                                            Faux Positif - Forcer l'acceptation
+                                        </button>
+                                        <button class="btn btn-action-warning" onclick="resolveCurrentAlert('send_otp')">
+                                            Envoyer code OTP au client - Suspect
+                                        </button>
+                                        <button class="btn btn-action-danger" onclick="resolveCurrentAlert('block_card')">
+                                            Bloquer la carte - Fraude Avingee
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LIGNE 3 : LES GRAPHIQUES -->
+                    <div class="dashboard-row margin-top-30">
+                        <div class="col-7">
+                            <div class="row-header">
+                                <h2>Activité Temporelle des Fraudes (Heure par Heure)</h2>
+                            </div>
+                            <div class="panel-card">
+                                <div class="chart-wrapper">
+                                    <canvas id="weeklyActivityChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-5">
+                            <div class="row-header">
+                                <h2>Typologie des Fraudes Bloquées</h2>
+                            </div>
+                            <div class="panel-card">
+                                <div class="chart-wrapper">
+                                    <canvas id="expenseStatsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2 : TESTER & SIMULATION TEMPS RÉEL -->
+                <div id="tab-tester" class="tab-content">
+                    <div class="dashboard-row">
+                        <div class="col-7">
+                            <div class="row-header">
+                                <h2>Simulation & Diagnostic d'Achat en Direct</h2>
+                            </div>
+                            <div class="panel-card">
+                                <div class="sample-actions-bar">
+                                    <button class="btn btn-secondary" onclick="loadSample('fraud')">Charger un exemple de Fraude</button>
+                                    <button class="btn btn-secondary" onclick="loadSample('legit')">Charger un exemple Légitime</button>
+                                </div>
+
+                                <form id="transactionForm" class="bankdash-form">
+                                    <div class="form-grid-2">
+                                        <div class="field-group">
+                                            <label>Montant Transaction ($ USD)</label>
+                                            <input type="number" id="amt" step="0.01" value="350.00" required>
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Catégorie de Commerçant</label>
+                                            <select id="category">
+                                                <option value="shopping_net" selected>Shopping en ligne (shopping_net)</option>
+                                                <option value="grocery_pos">Supermarché (grocery_pos)</option>
+                                                <option value="entertainment">Divertissement (entertainment)</option>
+                                                <option value="gas_transport">Carburant & Transport (gas_transport)</option>
+                                                <option value="travel">Voyage & Billetterie (travel)</option>
+                                                <option value="misc_net">Divers en ligne (misc_net)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-grid-2">
+                                        <div class="field-group">
+                                            <label>Genre du Client</label>
+                                            <select id="gender">
+                                                <option value="M">Homme</option>
+                                                <option value="F">Femme</option>
+                                            </select>
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Date de Naissance</label>
+                                            <input type="date" id="dob" value="1988-05-14">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-grid-2">
+                                        <div class="field-group">
+                                            <label>Latitude Client</label>
+                                            <input type="number" id="lat" step="0.0001" value="33.5731">
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Longitude Client</label>
+                                            <input type="number" id="long" step="0.0001" value="-7.5898">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-grid-2">
+                                        <div class="field-group">
+                                            <label>Latitude Commerçant</label>
+                                            <input type="number" id="merch_lat" step="0.0001" value="33.6000">
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Longitude Commerçant</label>
+                                            <input type="number" id="merch_long" step="0.0001" value="-7.6100">
+                                        </div>
+                                    </div>
+
+                                    <div class="field-group">
+                                        <label>Date & Heure de la Transaction</label>
+                                        <input type="datetime-local" id="trans_date_trans_time">
+                                    </div>
+
+                                    <button type="submit" class="btn btn-indigo full-width">Analyser la Transaction avec XGBoost</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="col-5">
+                            <div class="row-header">
+                                <h2>Verdict d'Inférence XGBoost</h2>
+                            </div>
+                            <div class="panel-card decision-panel" id="decisionPanel">
+                                <div class="decision-placeholder" id="decisionPlaceholder">
+                                    Remplissez le formulaire et cliquez sur "Analyser" pour exécuter l'inférence XGBoost en temps réel.
+                                </div>
+
+                                <div class="decision-result hidden" id="decisionResult">
+                                    <div class="verdict-banner" id="verdictBanner">
+                                        TRANSACTION LÉGITIME
+                                    </div>
+
+                                    <div class="gauge-card">
+                                        <span class="gauge-title">Score de Risque Décalculé</span>
+                                        <div class="gauge-val" id="riskScoreVal">0.0%</div>
+                                        <div class="gauge-bar-track">
+                                            <div class="gauge-bar-fill" id="gaugeFill"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-rows">
+                                        <div class="info-item">
+                                            <span>Montant Equivalent MAD</span>
+                                            <strong id="valAmtMad">0 MAD</strong>
+                                        </div>
+                                        <div class="info-item">
+                                            <span>Distance Client-Commerçant</span>
+                                            <strong id="valDistKm">0.0 km</strong>
+                                        </div>
+                                        <div class="info-item">
+                                            <span>Seuil Optimal du Modèle</span>
+                                            <strong id="valThreshold">91.0%</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3 : ANALYTIQUES RISQUE -->
+                <div id="tab-analytics" class="tab-content">
+                    <div class="dashboard-row">
+                        <div class="col-12">
+                            <div class="row-header">
+                                <h2>Évolution de l'Historique de Risque (Balance History)</h2>
+                            </div>
+                            <div class="panel-card">
+                                <div class="chart-wrapper-large">
+                                    <canvas id="balanceHistoryChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4 : HISTORIQUE & AUDIT DES ALERTES -->
+                <div id="tab-history" class="tab-content">
+                    <div class="audit-summary-row">
+                        <div class="audit-stat-card">
+                            <span class="audit-card-title">Journalisation Back-End</span>
+                            <div class="audit-card-val" id="auditTotalLogged">0</div>
+                            <span class="audit-card-sub">Fichier hidden : journal_audit.csv</span>
+                        </div>
+                        <div class="audit-stat-card">
+                            <span class="audit-card-title">Faux Positifs Classés</span>
+                            <div class="audit-card-val green-text" id="auditFpCount">0</div>
+                            <span class="audit-card-sub">Acceptations forcées</span>
+                        </div>
+                        <div class="audit-stat-card">
+                            <span class="audit-card-title">Cartes Bloquées & OTP</span>
+                            <div class="audit-card-val red-text" id="auditBlockCount">0</div>
+                            <span class="audit-card-sub">Actions préventives</span>
+                        </div>
+                        <div class="audit-stat-card">
+                            <span class="audit-card-title">Conformité Audit Bancaire</span>
+                            <div class="audit-card-val indigo-text">100%</div>
+                            <span class="audit-card-sub">Normes Banque Populaire</span>
+                        </div>
+                    </div>
+
+                    <div class="panel-card margin-top-30">
+                        <div class="row-header audit-table-header">
+                            <div>
+                                <h2>Registre d'Audit & Journalisation des Décisions Analyste</h2>
+                                <p class="panel-subtitle" style="margin-top: 4px;">Toutes les actions sont consignées dans <code>journal_audit.csv</code> avec l'ID, la date, l'heure et l'analyste connecté.</p>
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <select id="auditViewMode" class="btn btn-secondary btn-sm" onchange="loadAuditHistory(true)" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px;">
+                                    <option value="synthetic" selected>Vue Synthétique (Dossiers actifs)</option>
+                                    <option value="raw">Journal Brut (Tous les clics CSV)</option>
+                                </select>
+                                <button class="btn btn-indigo btn-sm" id="btnRefreshAudit" onclick="loadAuditHistory(true)">
+                                    <svg id="refreshAuditIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 6px; transition: transform 0.4s ease;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                                    <span id="refreshAuditText">Actualiser le Journal</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="audit-dataframe-table">
+                                <thead>
+                                    <tr>
+                                        <th>Horodatage (Clic)</th>
+                                        <th>ID Transaction</th>
+                                        <th>Analyste Connecté</th>
+                                        <th>Catégorie</th>
+                                        <th>Montant (MAD)</th>
+                                        <th>Décision Métier Final</th>
+                                        <th>Corbeille d'Annulation (UX)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="auditTableBody">
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4 color-muted">
+                                            Chargement du journal d'audit en cours...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="/static/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+catboost_info/
+
+# Large Datasets (Over GitHub's 100MB limit)
+data/*.csv
+!data/journal_audit.csv
+
+# Large Trained Models (Exceeding GitHub size limits)
+models/*.joblib
+!models/category_encoder.joblib
+
+# Environments & IDE
+.venv/
+env/
+venv/
+.idea/
+.vscode/
+.DS_Store
+*.log

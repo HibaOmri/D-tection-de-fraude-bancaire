@@ -1,0 +1,12 @@
+timestamp,trans_num,analyst,action,action_label,amt_mad,category,trans_date
+2026-07-27 15:30:38,TRX-TEST-001,analyste_test,false_positive,RÉSOLU : FAUX POSITIF,1500.0,shopping_net,2026-07-27 15:00:00
+2026-07-27 15:32:04,TRX-TEST-AUDIT-101,analyste_risque,false_positive,RÉSOLU : FAUX POSITIF,4200.0,shopping_net,2026-07-27 15:20:00
+2026-07-27 15:32:04,TRX-TEST-AUDIT-101,analyste_risque,undo_action,ANNULÉ - RETOUR FILE,4200.0,shopping_net,2026-07-27 15:20:00
+2026-07-27 15:33:54,TRX-TEST-AUDIT-101,Analyste Risque & Fraude,undo_action,ANNULÉ - RETOUR FILE,4200.0,shopping_net,2026-07-27 15:20:00
+2026-07-27 15:34:14,TRX-TEST-001,Analyste Risque & Fraude,undo_action,ANNULÉ - RETOUR FILE,1500.0,shopping_net,2026-07-27 15:00:00
+2026-07-27 15:35:06,01894a15ac990076875a3f72fd86f65d,Analyste Risque & Fraude,block_card,RÉSOLU : CARTE BLOQUÉE,14479.0,shopping_net,2020-06-22 15:54:49
+2026-07-27 15:38:39,TRX-TEST-AUDIT-101,analyste_risque,false_positive,RÉSOLU : FAUX POSITIF,4200.0,shopping_net,2026-07-27 15:20:00
+2026-07-27 15:38:39,TRX-TEST-AUDIT-101,analyste_risque,undo_action,ANNULÉ - RETOUR FILE,4200.0,shopping_net,2026-07-27 15:20:00
+2026-07-27 15:39:34,01894a15ac990076875a3f72fd86f65d,Analyste Risque & Fraude,undo_action,ANNULÉ - RETOUR FILE,14479.0,shopping_net,2020-06-22 15:54:49
+2026-07-27 15:50:13,TRX-TEST-AUDIT-101,analyste_risque,false_positive,RÉSOLU : FAUX POSITIF,4200.0,shopping_net,2026-07-27 15:20:00
+2026-07-27 15:50:13,TRX-TEST-AUDIT-101,analyste_risque,undo_action,ANNULÉ - RETOUR FILE,4200.0,shopping_net,2026-07-27 15:20:00
