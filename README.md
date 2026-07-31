@@ -1,4 +1,4 @@
-# 🛡️ BP-RiskGuard : Détection de Fraude Bancaire par Machine Learning
+# BP-RiskGuard : Détection de Fraude Bancaire par Machine Learning
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
 ![Flask](https://img.shields.io/badge/Flask-Web%20API-orange.svg)
@@ -12,22 +12,22 @@ L'application intègre l'ensemble de la chaîne ML : de l'ingestion de données 
 
 ---
 
-## 🌟 Fonctionnalités Clés
+## Fonctionnalités Clés
 
-- 📊 **Analyse Exploratoire (EDA)** : Visualisation du déséquilibre de classe, distribution log des montants (MAD) et analyse temporelle/catégorielle des fraudes.
-- ⚙️ **Feature Engineering Avancé** :
+- **Analyse Exploratoire (EDA)** : Visualisation du déséquilibre de classe, distribution log des montants (MAD) et analyse temporelle/catégorielle des fraudes.
+- **Feature Engineering Avancé** :
   - Vitesse géodésique de transaction (`velocity_kmh`) entre deux achats consécutifs par carte.
   - Distances Haversine client-commerçant et domicile-commerçant.
   - Encodage cyclique trigonométrique (`hour_sin`, `hour_cos`).
   - Ratios et écarts par rapport au profil historique du porteur de carte.
-- 🤖 **Modélisation SOTA** : Comparatif entre **Random Forest**, **XGBoost**, **LightGBM** et **CatBoost**.
-- 💰 **Matrice de Coûts Financiers (MAD)** : Recherche automatique du seuil de décision optimal minimisant la perte totale ($\text{FN}_{\text{montant}} + \text{FP} \times 150\text{ DH}$).
-- 🔍 **Explicabilité SHAP (XAI)** : SHAP Summary Plot pour l'importance globale et Waterfall Plot pour l'explication locale par transaction.
-- 💻 **Dashboard Web & API Flask** : Interface temps réel pour analystes risques avec simulateur de flux, réglage dynamique de sensibilité, clôture de dossiers (Faux Positif, OTP, Blocage carte) et journal d'audit rétroactif.
+- **Modélisation SOTA** : Comparatif entre **Random Forest**, **XGBoost**, **LightGBM** et **CatBoost**.
+- **Matrice de Coûts Financiers (MAD)** : Recherche automatique du seuil de décision optimal minimisant la perte totale ($\text{FN}_{\text{montant}} + \text{FP} \times 150\text{ DH}$).
+- **Explicabilité SHAP (XAI)** : SHAP Summary Plot pour l'importance globale et Waterfall Plot pour l'explication locale par transaction.
+- **Dashboard Web & API Flask** : Interface temps réel pour analystes risques avec simulateur de flux, réglage dynamique de sensibilité, clôture de dossiers (Faux Positif, OTP, Blocage carte) et journal d'audit rétroactif.
 
 ---
 
-## 📁 Structure du Projet
+## Structure du Projet
 
 ```
 detection_fraude/
@@ -52,7 +52,7 @@ detection_fraude/
 
 ---
 
-## 🚀 Installation & Démarrage
+## Installation & Démarrage
 
 ### 1. Prérequis & Installation
 ```bash
@@ -72,5 +72,5 @@ Accédez au tableau de bord via votre navigateur sur `http://127.0.0.1:5000/`.
 
 ---
 
-## 👩‍💻 Auteur
+## Auteur
 Développé dans le cadre d'un stage au Pôle Gestion des Risques de la **Banque Populaire du Maroc**.
